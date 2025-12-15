@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krious Crafts – Fund Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    h3 {
+      text-align: center;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #222;
+      color: #fff;
+    }
+    input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 15px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #444;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .card {
+      background: #f1f1f1;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .card h2 {
+      margin: 5px 0;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Krious Crafts</h1>
+  <h3>Fund Management Dashboard</h3>
+
+  <div class="container">
+    <table id="fundTable">
+      <thead>
+        <tr>
+          <th>Total Investment</th>
+          <th>Sell With Profit</th>
+          <th>Profit</th>
+          <th>Sell Without Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="number" class="investment" /></td>
+          <td><input type="number" class="sellProfit" /></td>
+          <td><input type="number" class="profit" /></td>
+          <td><input type="number" class="sellNoProfit" /></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button onclick="addRow()">➕ Add Row</button>
+
+    <hr style="margin:20px 0;">
+
+    <div class="summary">
+      <div class="card">
+        <h4>Total Investment</h4>
+        <h2 id="totalInvestment">0</h2>
+      </div>
+      <div class="card">
+        <h4>Total Profit</h4>
+        <h2 id="totalProfit">0</h2>
+      </div>
+      <div class="card">
+        <h4>Total Sell (With Profit)</h4>
+        <h2 id="totalSellProfit">0</h2>
+      </div>
+      <div class="card">
+        <h4>Total Sell (No Profit)</h4>
+        <h2 id="totalSellNoProfit">0</h2>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ===== Local Storage Save & Load =====
+  function saveData() {
+    const rows = [];
+    document.querySelectorAll('#fundTable tbody tr').forEach(row => {
+      rows.push({
+        investment: row.querySelector('.investment')?.value || '',
+        sellProfit: row.querySelector('.sellProfit')?.value || '',
+        profit: row.querySelector('.profit')?.value || '',
+        sellNoProfit: row.querySelector('.sellNoProfit')?.value || ''
+      });
+    });
+    localStorage.setItem('kriousFunds', JSON.stringify(rows));
+  }
+
+  function loadData() {
+    const data = JSON.parse(localStorage.getItem('kriousFunds') || '[]');
+    const tbody = document.querySelector('#fundTable tbody');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) addRow();
+
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="number" class="investment" value="${item.investment}" /></td>
+        <td><input type="number" class="sellProfit" value="${item.sellProfit}" /></td>
+        <td><input type="number" class="profit" value="${item.profit}" /></td>
+        <td><input type="number" class="sellNoProfit" value="${item.sellNoProfit}" /></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  window.addEventListener('load', loadData);
+
+  function addRow() {
+    const table = document.querySelector('#fundTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="number" class="investment" /></td>
+      <td><input type="number" class="sellProfit" /></td>
+      <td><input type="number" class="profit" /></td>
+      <td><input type="number" class="sellNoProfit" /></td>
+    `;
+    table.appendChild(row);
+  }
+
+  document.addEventListener('input', () => {
+    let totalInvestment = 0;
+    let totalProfit = 0;
+    let totalSellProfit = 0;
+    let totalSellNoProfit = 0;
+
+    document.querySelectorAll('#fundTable tbody tr').forEach(row => {
+      const investment = Number(row.querySelector('.investment').value) || 0;
+      const sellProfit = Number(row.querySelector('.sellProfit').value) || 0;
+      const profit = Number(row.querySelector('.profit').value) || 0;
+      const sellNoProfit = Number(row.querySelector('.sellNoProfit').value) || 0;
+
+      totalInvestment += investment;
+      totalProfit += profit;
+      totalSellProfit += sellProfit;
+      totalSellNoProfit += sellNoProfit;
+    });
+
+    document.getElementById('totalInvestment').innerText = totalInvestment;
+    document.getElementById('totalProfit').innerText = totalProfit;
+    document.getElementById('totalSellProfit').innerText = totalSellProfit;
+    document.getElementById('totalSellNoProfit').innerText = totalSellNoProfit;
+
+    saveData();
+  });
+
+    document.getElementById('totalInvestment').innerText = totalInvestment;
+    document.getElementById('totalProfit').innerText = totalProfit;
+    document.getElementById('totalSellProfit').innerText = totalSellProfit;
+    document.getElementById('totalSellNoProfit').innerText = totalSellNoProfit;
+</script>
+
+</body>
+</html>
