@@ -2,135 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Krious Crafts – Fund Manager</title>
 
-  <!-- Firebase v9 (MODULAR – correct for GitHub Pages) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-    /* 🔴 REPLACE WITH YOUR OWN FIREBASE CONFIG 🔴 */
-    const firebaseConfig = {
-      apiKey: "AIzaSyCywOwEa-1TABGYPX1u4la-zLJhW5Kyz_w",
-      authDomain: "krious-crafts.firebaseapp.com",
-      projectId: "krious-crafts",
-      storageBucket: "krious-crafts.firebasestorage.app",
-      messagingSenderId: "763752148398",
-      appId: "1:763752148398:web:ceaa0a99e8820cdef4ec3f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    /* ================= LOGIN ================= */
-    window.login = function () {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      signInWithEmailAndPassword(auth, email, password)
-        .catch(err => alert(err.message));
-    };
-
-    window.logout = function () {
-      signOut(auth);
-    };
-
-    /* ================= AUTH STATE ================= */
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        loadData();
-      } else {
-        document.getElementById('loginBox').style.display = 'block';
-        document.getElementById('dashboard').style.display = 'none';
-      }
-    });
-
-    /* ================= ADD ROW ================= */
-    window.addRow = function () {
-      const tbody = document.querySelector('#fundTable tbody');
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td><input class="investment"></td>
-        <td><input class="sellProfit"></td>
-        <td><input class="profit"></td>
-        <td><input class="sellNoProfit"></td>
-      `;
-      tbody.appendChild(row);
-    };
-
-    /* ================= SAVE DATA ================= */
-    function saveData() {
-      const rows = [];
-      document.querySelectorAll('#fundTable tbody tr').forEach(row => {
-        rows.push({
-          investment: row.querySelector('.investment').value,
-          sellProfit: row.querySelector('.sellProfit').value,
-          profit: row.querySelector('.profit').value,
-          sellNoProfit: row.querySelector('.sellNoProfit').value
-        });
-      });
-
-      setDoc(doc(db, 'funds', 'main'), { rows });
-    }
-
-    /* ================= LOAD DATA (REALTIME) ================= */
-    function loadData() {
-      onSnapshot(doc(db, 'funds', 'main'), snap => {
-        if (!snap.exists()) return;
-
-        const tbody = document.querySelector('#fundTable tbody');
-        tbody.innerHTML = '';
-
-        let totalInvestment = 0;
-        let totalProfit = 0;
-        let totalSellProfit = 0;
-        let totalSellNoProfit = 0;
-
-        snap.data().rows.forEach(item => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><input class="investment" value="${item.investment}"></td>
-            <td><input class="sellProfit" value="${item.sellProfit}"></td>
-            <td><input class="profit" value="${item.profit}"></td>
-            <td><input class="sellNoProfit" value="${item.sellNoProfit}"></td>
-          `;
-          tbody.appendChild(row);
-
-          totalInvestment += Number(item.investment) || 0;
-          totalProfit += Number(item.profit) || 0;
-          totalSellProfit += Number(item.sellProfit) || 0;
-          totalSellNoProfit += Number(item.sellNoProfit) || 0;
-        });
-
-        document.getElementById('totalInvestment').innerText = totalInvestment;
-        document.getElementById('totalProfit').innerText = totalProfit;
-        document.getElementById('totalSellProfit').innerText = totalSellProfit;
-        document.getElementById('totalSellNoProfit').innerText = totalSellNoProfit;
-      });
-    }
-
-    /* ================= AUTO SAVE ================= */
-    document.addEventListener('input', e => {
-      if (e.target.tagName === 'INPUT') saveData();
-    });
-  </script>
-
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:30px; }
-    h1,h3 { text-align:center; }
-    #loginBox { max-width:300px; margin:50px auto; text-align:center; }
-    input { padding:8px; margin:5px; width:100%; }
-    button { padding:8px 15px; cursor:pointer; }
-    table { width:100%; border-collapse:collapse; margin-top:20px; }
-    th,td { border:1px solid #ccc; padding:10px; text-align:center; }
-    th { background:#222; color:white; }
-    .summary { display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-top:20px; }
-    .card { background:white; padding:15px; border-radius:8px; text-align:center; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h3 {
+      text-align: center;
+      margin: 5px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #222;
+      color: white;
+    }
+
+    input {
+      width: 90%;
+      padding: 6px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    #loginBox {
+      max-width: 300px;
+      margin: 40px auto;
+      text-align: center;
+    }
+
+    /* ================= MOBILE RESPONSIVE ================= */
+    @media (max-width: 768px) {
+
+      body {
+        padding: 10px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        background: white;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+
+      td {
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+      }
+
+      input {
+        width: 60%;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -147,7 +132,7 @@
 <div id="dashboard" style="display:none;">
   <button onclick="logout()">Logout</button>
 
-  <table id="fundTable">
+  <table>
     <thead>
       <tr>
         <th>Total Investment</th>
@@ -156,7 +141,7 @@
         <th>Sell Without Profit</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="tableBody"></tbody>
   </table>
 
   <button onclick="addRow()">+ Add Row</button>
@@ -168,6 +153,118 @@
     <div class="card"><h4>Total Sell (No Profit)</h4><h2 id="totalSellNoProfit">0</h2></div>
   </div>
 </div>
+
+<!-- ================= FIREBASE + SCRIPT ================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  /* 🔴 REPLACE WITH YOUR FIREBASE CONFIG 🔴 */
+  const firebaseConfig = {
+    apiKey: "AIzaSyCywOwEa-1TABGYPX1u4la-zLJhW5Kyz_w",
+  authDomain: "krious-crafts.firebaseapp.com",
+  projectId: "krious-crafts",
+  storageBucket: "krious-crafts.firebasestorage.app",
+  messagingSenderId: "763752148398",
+  appId: "1:763752148398:web:ceaa0a99e8820cdef4ec3f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const ref = doc(db, "funds", "main");
+
+  const tbody = document.getElementById("tableBody");
+  let isEditing = false;
+
+  /* ================= LOGIN ================= */
+  window.login = () => {
+    signInWithEmailAndPassword(auth, email.value, password.value)
+      .catch(err => alert(err.message));
+  };
+
+  window.logout = () => signOut(auth);
+
+  onAuthStateChanged(auth, user => {
+    loginBox.style.display = user ? "none" : "block";
+    dashboard.style.display = user ? "block" : "none";
+    if (user) loadData();
+  });
+
+  /* ================= ROW ================= */
+  function createRow(item) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td data-label="Total Investment"><input class="investment" value="${item.investment}"></td>
+      <td data-label="Sell With Profit"><input class="sellProfit" value="${item.sellProfit}"></td>
+      <td data-label="Profit"><input class="profit" value="${item.profit}"></td>
+      <td data-label="Sell Without Profit"><input class="sellNoProfit" value="${item.sellNoProfit}"></td>
+    `;
+
+    row.querySelectorAll("input").forEach(i => {
+      i.addEventListener("focus", () => isEditing = true);
+      i.addEventListener("blur", () => {
+        isEditing = false;
+        saveData();
+      });
+    });
+
+    return row;
+  }
+
+  window.addRow = () => {
+    tbody.appendChild(createRow({ investment:"", sellProfit:"", profit:"", sellNoProfit:"" }));
+    saveData();
+  };
+
+  /* ================= SAVE ================= */
+  async function saveData() {
+    const rows = [];
+    let totals = { investment:0, sellProfit:0, profit:0, sellNoProfit:0 };
+
+    document.querySelectorAll("#tableBody tr").forEach(r => {
+      const investment = Number(r.querySelector(".investment").value) || 0;
+      const sellProfit = Number(r.querySelector(".sellProfit").value) || 0;
+      const profit = Number(r.querySelector(".profit").value) || 0;
+      const sellNoProfit = Number(r.querySelector(".sellNoProfit").value) || 0;
+
+      rows.push({ investment, sellProfit, profit, sellNoProfit });
+
+      totals.investment += investment;
+      totals.sellProfit += sellProfit;
+      totals.profit += profit;
+      totals.sellNoProfit += sellNoProfit;
+    });
+
+    await setDoc(ref, { rows, totals });
+  }
+
+  /* ================= LOAD (REALTIME) ================= */
+  function loadData() {
+    onSnapshot(ref, snap => {
+      if (!snap.exists() || isEditing) return;
+
+      tbody.innerHTML = "";
+      const d = snap.data();
+
+      d.rows.forEach(r => tbody.appendChild(createRow(r)));
+
+      totalInvestment.textContent = d.totals.investment;
+      totalProfit.textContent = d.totals.profit;
+      totalSellProfit.textContent = d.totals.sellProfit;
+      totalSellNoProfit.textContent = d.totals.sellNoProfit;
+    });
+  }
+
+  /* ================= INIT ================= */
+  (async () => {
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, { rows: [], totals:{investment:0,sellProfit:0,profit:0,sellNoProfit:0} });
+    }
+  })();
+</script>
 
 </body>
 </html>
